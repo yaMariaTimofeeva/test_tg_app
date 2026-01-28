@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="telegram:viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Telegram Clicker Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            color: white;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .click-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ff4081, #f50057);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 
+                0 15px 35px rgba(255, 64, 129, 0.4),
+                inset 0 5px 20px rgba(255, 255, 255, 0.2);
+            transition: all 0.1s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .click-button:active {
+            transform: scale(0.95);
+            box-shadow: 
+                0 5px 20px rgba(255, 64, 129, 0.4),
+                inset 0 2px 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        .click-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 1%, transparent 1%);
+            background-size: 10px 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .click-button:active::after {
+            opacity: 1;
+        }
+        
+        .click-power {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .upgrades {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .upgrade {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .upgrade:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .upgrade:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .upgrade-price {
+            color: #4caf50;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .telegram-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .tg-button {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            min-width: 140px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tg-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .shop {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .shop-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #ffeb3b;
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .click-button {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .upgrades {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Telegram Clicker</h1>
+            <div class="user-info">
+                <div class="avatar" id="userAvatar">TG</div>
+                <div>
+                    <div id="userName">Игрок</div>
+                    <div style="font-size: 0.8rem; opacity: 0.8;">Уровень: <span id="userLevel">1</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="coins">0</div>
+                <div class="stat-label">Монеты</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="clicks">0</div>
+                <div class="stat-label">Клики</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="power">1</div>
+                <div class="stat-label">Сила клика</div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <button class="click-button" id="clickButton">
+                КЛИКАЙ!
+                <div class="click-power">+<span id="clickPower">1</span> за клик</div>
+            </button>
+            
+            <div class="shop">
+                <div class="shop-title">🛒 Магазин улучшений</div>
+                <div class="upgrades">
+                    <button class="upgrade" id="upgrade1" onclick="buyUpgrade(1)">
+                        <div>💪 Усилитель</div>
+                        <div class="upgrade-price">💰 50</div>
+                        <div style="font-size: 0.8rem;">+1 к силе клика</div>
+                    </button>
+                    <button class="upgrade" id="upgrade2" onclick="buyUpgrade(2)">
+                        <div>⚡ Автокликер</div>
+                        <div class="upgrade-price">💰 200</div>
+                        <div style="font-size: 0.8rem;">+5 монет/сек</div>
+                    </button>
+                    <button class="upgrade" id="upgrade3" onclick="buyUpgrade(3)">
+                        <div>👑 Мультипликатор</div>
+                        <div class="upgrade-price">💰 500</div>
+                        <div style="font-size: 0.8rem;">×2 все доходы</div>
+                    </button>
+                    <button class="upgrade" id="upgrade4" onclick="buyUpgrade(4)">
+                        <div>🚀 Буст</div>
+                        <div class="upgrade-price">💰 1000</div>
+                        <div style="font-size: 0.8rem;">+10 силы клика</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="telegram-controls">
+            <button class="tg-button" onclick="saveGame()">
+                💾 Сохранить
+            </button>
+            <button class="tg-button" onclick="shareScore()">
+                📢 Поделиться
+            </button>
+            <button class="tg-button" onclick="showLeaderboard()">
+                🏆 Таблица лидеров
+            </button>
+            <button class="tg-button" onclick="closeGame()">
+                ❌ Выход
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        let coins = 0;
+        let totalClicks = 0;
+        let clickPower = 1;
+        let level = 1;
+        let autoClicker = 0;
+        let multiplier = 1;
+        let upgrades = {
+            upgrade1: false,
+            upgrade2: false,
+            upgrade3: false,
+            upgrade4: false
+        };
+        
+        // Telegram WebApp API
+        let tg = null;
+        
+        // Инициализация Telegram WebApp
+        function initTelegram() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.expand();
+                tg.enableClosingConfirmation();
+                tg.setHeaderColor('#6a11cb');
+                tg.setBackgroundColor('#6a11cb');
+                
+                // Получаем данные пользователя
+                const user = tg.initDataUnsafe.user;
+                if (user) {
+                    document.getElementById('userName').textContent = 
+                        user.first_name || user.username || 'Игрок';
+                    document.getElementById('userAvatar').textContent = 
+                        user.first_name ? user.first_name[0].toUpperCase() : 'TG';
+                    
+                    // Можно загрузить аватар, если доступен
+                    if (user.photo_url) {
+                        document.getElementById('userAvatar').style.backgroundImage = 
+                            `url(${user.photo_url})`;
+                        document.getElementById('userAvatar').style.backgroundSize = 'cover';
+                    }
+                }
+                
+                // Загружаем сохраненную игру
+                loadGame();
+            }
+        }
+        
+        // Основная игровая логика
+        function click() {
+            coins += clickPower * multiplier;
+            totalClicks++;
+            
+            // Обновляем UI
+            updateUI();
+            
+            // Анимация кнопки
+            const button = document.getElementById('clickButton');
+            button.classList.add('pulse');
+            setTimeout(() => button.classList.remove('pulse'), 200);
+            
+            // Проверяем уровень
+            checkLevel();
+            
+            // Показываем +монеты
+            showClickEffect(clickPower * multiplier);
+        }
+        
+        function showClickEffect(value) {
+            const effect = document.createElement('div');
+            effect.textContent = `+${value}`;
+            effect.style.cssText = `
+                position: fixed;
+                color: #4caf50;
+                font-weight: bold;
+                font-size: 1.2rem;
+                pointer-events: none;
+                animation: floatUp 1s ease-out;
+                z-index: 100;
+            `;
+            
+            // Позиция эффекта
+            const button = document.getElementById('clickButton');
+            const rect = button.getBoundingClientRect();
+            effect.style.left = `${rect.left + rect.width / 2}px`;
+            effect.style.top = `${rect.top}px`;
+            
+            document.body.appendChild(effect);
+            
+            setTimeout(() => effect.remove(), 1000);
+        }
+        
+        // Добавляем стили для анимации
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes floatUp {
+                0% {
+                    transform: translate(-50%, 0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translate(-50%, -50px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        function updateUI() {
+            document.getElementById('coins').textContent = Math.floor(coins);
+            document.getElementById('clicks').textContent = totalClicks;
+            document.getElementById('power').textContent = clickPower * multiplier;
+            document.getElementById('clickPower').textContent = clickPower * multiplier;
+            document.getElementById('userLevel').textContent = level;
+            
+            // Обновляем доступность улучшений
+            updateUpgrades();
+        }
+        
+        function updateUpgrades() {
+            const upgradePrices = [50, 200, 500, 1000];
+            
+            for (let i = 1; i <= 4; i++) {
+                const upgrade = document.getElementById(`upgrade${i}`);
+                const price = upgradePrices[i-1];
+                
+                if (coins >= price && !upgrades[`upgrade${i}`]) {
+                    upgrade.disabled = false;
+                } else {
+                    upgrade.disabled = true;
+                }
+            }
+        }
+        
+        function buyUpgrade(type) {
+            let price = 0;
+            
+            switch(type) {
+                case 1: // Усилитель
+                    price = 50;
+                    if (coins >= price && !upgrades.upgrade1) {
+                        coins -= price;
+                        clickPower += 1;
+                        upgrades.upgrade1 = true;
+                        showNotification('💪 Сила клика увеличена!');
+                    }
+                    break;
+                    
+                case 2: // Автокликер
+                    price = 200;
+                    if (coins >= price && !upgrades.upgrade2) {
+                        coins -= price;
+                        autoClicker += 5;
+                        upgrades.upgrade2 = true;
+                        showNotification('⚡ Автокликер активирован!');
+                    }
+                    break;
+                    
+                case 3: // Мультипликатор
+                    price = 500;
+                    if (coins >= price && !upgrades.upgrade3) {
+                        coins -= price;
+                        multiplier *= 2;
+                        upgrades.upgrade3 = true;
+                        showNotification('👑 Доходы удвоены!');
+                    }
+                    break;
+                    
+                case 4: // Буст
+                    price = 1000;
+                    if (coins >= price && !upgrades.upgrade4) {
+                        coins -= price;
+                        clickPower += 10;
+                        upgrades.upgrade4 = true;
+                        showNotification('🚀 Мощный буст активирован!');
+                    }
+                    break;
+            }
+            
+            updateUI();
+            saveGame();
+        }
+        
+        function checkLevel() {
+            const newLevel = Math.floor(totalClicks / 100) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                showNotification(`🎉 Уровень ${level} достигнут!`);
+            }
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Telegram функции
+        function saveGame() {
+            const gameData = {
+                coins,
+                totalClicks,
+                clickPower,
+                level,
+                autoClicker,
+                multiplier,
+                upgrades,
+                timestamp: Date.now()
+            };
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('telegramClickerSave', JSON.stringify(gameData));
+            
+            // Отправляем данные в Telegram
+            if (tg) {
+                tg.sendData(JSON.stringify({
+                    action: 'save_game',
+                    data: gameData
+                }));
+            }
+            
+            showNotification('💾 Игра сохранена!');
+        }
+        
+        function loadGame() {
+            const saved = localStorage.getItem('telegramClickerSave');
+            if (saved) {
+                try {
+                    const gameData = JSON.parse(saved);
+                    
+                    // Загружаем данные (можно добавить проверку давности сохранения)
+                    coins = gameData.coins || 0;
+                    totalClicks = gameData.totalClicks || 0;
+                    clickPower = gameData.clickPower || 1;
+                    level = gameData.level || 1;
+                    autoClicker = gameData.autoClicker || 0;
+                    multiplier = gameData.multiplier || 1;
+                    upgrades = gameData.upgrades || {
+                        upgrade1: false,
+                        upgrade2: false,
+                        upgrade3: false,
+                        upgrade4: false
+                    };
+                    
+                    updateUI();
+                    showNotification('📂 Игра загружена!');
+                } catch (e) {
+                    console.error('Ошибка загрузки:', e);
+                }
+            }
+        }
+        
+        function shareScore() {
+            const message = `🎮 Я набрал ${coins} монет в Telegram Clicker! Мой уровень: ${level}. Сможешь побить мой рекорд?`;
+            
+            if (tg) {
+                // Используем Telegram для отправки
+                tg.openLink(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(message)}`);
+            } else {
+                // Копируем в буфер обмена
+                navigator.clipboard.writeText(message);
+                showNotification('📋 Текст скопирован в буфер обмена!');
+            }
+        }
+        
+        function showLeaderboard() {
+            showNotification('🏆 Функция в разработке!');
+        }
+        
+        function closeGame() {
+            if (tg) {
+                saveGame();
+                tg.close();
+            } else {
+                showNotification('❌ Закройте приложение вручную');
+            }
+        }
+        
+        // Автокликер
+        function autoClick() {
+            if (autoClicker > 0) {
+                coins += autoClicker * multiplier;
+                updateUI();
+            }
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            initTelegram();
+            
+            // Назначаем обработчики
+            document.getElementById('clickButton').addEventListener('click', click);
+            
+            // Автокликер каждую секунду
+            setInterval(autoClick, 1000);
+            
+            // Автосохранение каждые 30 секунд
+            setInterval(saveGame, 30000);
+        });
+    </script>
+</body>
+</html>
